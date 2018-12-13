@@ -7,8 +7,9 @@ module.exports = function (options) {
     let includeSubDomains = options.includeSubDomains !== undefined ? options.includeSubdomains : true;
 
     return async function yes(ctx, next) {
+
         let ignoreRequest = (ctx.url.indexOf('/_ah/health') > -1);
-        let secure = ctx.connection.encrypted || (ctx.get('X-Forwarded-Proto') === "https");
+        let secure = ctx.secure || (ctx.get('X-Forwarded-Proto') === "https");
 
         if (!ignoreRequest) {
             if (!secure) {
@@ -24,6 +25,6 @@ module.exports = function (options) {
         } else {
             await next();
         }
+
     }
 }
-
