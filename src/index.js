@@ -7,12 +7,18 @@ module.exports = function (options) {
     let includeSubDomains = options.includeSubDomains !== undefined ? options.includeSubdomains : true;
 
     return async function yes(ctx, next) {
-
-        let ignoreRequest = (ctx.url.indexOf('/_ah/health') > -1);
+        //
+        let ignoreRequest = (
+            ctx.url.indexOf('/liveness_check') > -1 ||
+            ctx.url.indexOf('/readiness_check') > -1
+        );
+        //
+        let nodeENV = (process.env.NODE_ENV === 'production');
+        //
         let secure = ctx.secure || (ctx.get('X-Forwarded-Proto') === "https");
 
         if (!ignoreRequest) {
-            if (!secure) {
+            if (!secure && nodeENV) {
                 ctx.status = 301;
                 ctx.redirect('https://' + ctx.get('host') + ctx.url);
             } else {
